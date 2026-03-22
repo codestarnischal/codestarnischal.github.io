@@ -1,14 +1,17 @@
-import './globals.css';
+import '../styles/globals.css';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { MotionConfig, AnimatePresence } from 'framer-motion';
 
 export const metadata = {
-  title: 'ScoutLens — Industrial AI Inspector',
-  description: 'Local-first machine inspection with audio intelligence.',
-  themeColor: '#ffffff',
+  title: 'ScoutLens — Dual-Engine AI Preview',
+  description: 'Deployable preview for a single-version AI auditor and market researcher workflow.',
 };
 
+
+export const viewport = {
+  themeColor: '#ffffff',
+};
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
@@ -29,11 +32,12 @@ function Header() {
   return (
     <header className="border-b bg-white/70 backdrop-blur sticky top-0 z-40">
       <div className="container max-w-6xl py-3 flex items-center justify-between">
-        <Link href="/inspect" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
           <span className="inline-block h-8 w-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-soft" />
           <span className="font-semibold tracking-tight text-lg">ScoutLens</span>
         </Link>
         <nav className="flex items-center gap-4 text-sm">
+          <Link className="hover:text-blue-600" href="/">Preview</Link>
           <Link className="hover:text-blue-600" href="/inspect">Inspect</Link>
           <Link className="hover:text-blue-600" href="/reports">Reports</Link>
           <Link className="hover:text-blue-600" href="/settings">Settings</Link>
