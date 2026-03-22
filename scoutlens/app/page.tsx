@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation';
+import PreviewConsole from '@/components/preview/preview-console';
 
 export default function Page() {
-  redirect('/inspect');
+  return <PreviewConsole />;
 }
