@@ -1,0 +1,12 @@
+{
+  "name": "codestarnischal-github-io",
+  "private": true,
+  "packageManager": "pnpm@10.13.1",
+  "scripts": {
+    "dev": "cd scoutlens && pnpm dev",
+    "build": "cd scoutlens && pnpm build",
+    "start": "cd scoutlens && pnpm exec next start -H 0.0.0.0 -p ${PORT:-3000}",
+    "test": "cd scoutlens && pnpm test",
+    "typecheck": "cd scoutlens && pnpm typecheck"
+  }
+}
