@@ -88,23 +88,33 @@ const FRAGMENT_SHADER = `
 `;
 
 function FluidPlane() {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const uniforms = useMemo(() => ({
-    uTime: { value: 0 },
-    uResolution: { value: new THREE.Vector2(1, 1) },
-  }), []);
+  const materialRef = useRef<THREE.ShaderMaterial>(null);
+  // Stable initial uniforms (safe to read during render). The per-frame time
+  // update is applied via the material ref below, never by mutating this object
+  // directly, which keeps the hook-purity lint rules satisfied.
+  const initialUniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uResolution: { value: new THREE.Vector2(1, 1) },
+    }),
+    []
+  );
 
   useFrame(({ clock }) => {
-    uniforms.uTime.value = clock.getElapsedTime();
+    const material = materialRef.current;
+    if (material) {
+      material.uniforms.uTime.value = clock.getElapsedTime();
+    }
   });
 
   return (
-    <mesh ref={meshRef} scale={[2, 2, 1]}>
+    <mesh scale={[2, 2, 1]}>
       <planeGeometry args={[2, 2, 1, 1]} />
       <shaderMaterial
+        ref={materialRef}
         vertexShader={VERTEX_SHADER}
         fragmentShader={FRAGMENT_SHADER}
-        uniforms={uniforms}
+        uniforms={initialUniforms}
       />
     </mesh>
   );

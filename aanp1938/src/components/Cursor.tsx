@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionValue, useSpring } from "framer-motion";
 
 export default function Cursor() {
   const cursorX = useMotionValue(-100);
@@ -9,22 +9,24 @@ export default function Cursor() {
   const [isHovering, setIsHovering] = useState(false);
   const [velocity, setVelocity] = useState({ x: 0, y: 0 });
   const lastPos = useRef({ x: -100, y: -100 });
-  const lastTime = useRef(Date.now());
+  // Initialized lazily inside the move handler — avoid impure Date.now() in render.
+  const lastTime = useRef(0);
 
   const springConfig = { damping: 28, stiffness: 200, mass: 0.5 };
   const springX = useSpring(cursorX, springConfig);
   const springY = useSpring(cursorY, springConfig);
 
-  const speed = Math.sqrt(velocity.x ** 2 + velocity.y ** 2);
-  const scaleX = useTransform(
-    useMotionValue(speed),
-    [0, 30],
-    [1, 1.8]
-  );
-
   useEffect(() => {
     const move = (e: MouseEvent) => {
       const now = Date.now();
+      // First sample: seed position/time without computing a spurious velocity.
+      if (lastTime.current === 0) {
+        lastPos.current = { x: e.clientX, y: e.clientY };
+        lastTime.current = now;
+        cursorX.set(e.clientX);
+        cursorY.set(e.clientY);
+        return;
+      }
       const dt = Math.max(now - lastTime.current, 1);
       const vx = (e.clientX - lastPos.current.x) / dt * 16;
       const vy = (e.clientY - lastPos.current.y) / dt * 16;

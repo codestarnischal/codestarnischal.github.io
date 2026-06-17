@@ -9,11 +9,25 @@ export function useSensoryFeedback() {
   const isInitialized = useRef(false);
 
   const initAudio = useCallback(() => {
-    if (isInitialized.current) return;
+    // If already initialized, just make sure the context is running.
+    // (A context can be suspended again, e.g. when the tab is backgrounded.)
+    if (isInitialized.current) {
+      const existing = audioCtxRef.current;
+      if (existing && existing.state === "suspended") {
+        void existing.resume();
+      }
+      return;
+    }
     isInitialized.current = true;
 
     const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
     audioCtxRef.current = ctx;
+
+    // Browser autoplay policy requires a real user-activation gesture; resume
+    // explicitly in case the context starts suspended.
+    if (ctx.state === "suspended") {
+      void ctx.resume();
+    }
 
     // Master gain — extremely subtle
     const masterGain = ctx.createGain();
@@ -81,13 +95,22 @@ export function useSensoryFeedback() {
   }, []);
 
   useEffect(() => {
-    // Initialize on first user gesture
-    const init = () => initAudio();
-    document.addEventListener("click", init, { once: true });
-    document.addEventListener("mousemove", init, { once: true });
+    // Initialize on the first *real* user-activation gesture. `mousemove` does
+    // NOT count as activation, so creating/resuming the AudioContext there would
+    // leave it suspended (silent) for the whole session.
+    const activationEvents = ["pointerdown", "click", "keydown", "touchstart"] as const;
+    const init = () => {
+      initAudio();
+      // Once successfully running, stop listening.
+      if (audioCtxRef.current && audioCtxRef.current.state === "running") {
+        activationEvents.forEach((evt) => document.removeEventListener(evt, init));
+      }
+    };
+    activationEvents.forEach((evt) =>
+      document.addEventListener(evt, init, { passive: true })
+    );
     return () => {
-      document.removeEventListener("click", init);
-      document.removeEventListener("mousemove", init);
+      activationEvents.forEach((evt) => document.removeEventListener(evt, init));
     };
   }, [initAudio]);
 

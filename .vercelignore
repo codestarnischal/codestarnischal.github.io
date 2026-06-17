@@ -1,0 +1,5 @@
+# The Vercel project deploys the `scoutlens` Next.js app (see vercel.json).
+# `aanp1938` is a separate, self-contained Next.js app that is NOT part of this
+# deployment. Excluding it keeps Vercel's framework/output detection focused on
+# scoutlens and prevents the two apps from being mistaken for one monorepo build.
+aanp1938
