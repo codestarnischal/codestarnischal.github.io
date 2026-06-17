@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nextjs",
   "installCommand": "cd scoutlens && pnpm install --frozen-lockfile",
   "buildCommand": "cd scoutlens && pnpm build",
+  "outputDirectory": "scoutlens/.next",
   "devCommand": "cd scoutlens && pnpm dev"
 }
